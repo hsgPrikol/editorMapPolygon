@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>CircleMap.qml</file>
+        <file>PolyLine.qml</file>
+    </qresource>
+</RCC>
