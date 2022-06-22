@@ -180,24 +180,6 @@ Window {
         spacing: 10
 
         Button{
-            text: "Remove Coordinate"
-
-            onClicked: {
-                window.polygons[window.currentPolygon].line.removeCoordinate(window.polygons[window.currentPolygon].line.path.lenght -1)
-
-                console.log("Remove Coordinate")
-            }
-        }
-
-        Button{
-            text: "Clear Map"
-
-            onClicked: {
-                map.clearMapItems();
-            }
-        }
-
-        Button{
             text: "Сомкнуть полигон"
 
             onClicked: {
