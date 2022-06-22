@@ -10,7 +10,7 @@ MapPolyline{
     line.color: "black"
     property int parentIndex: -1
 
-    MouseArea{
+    MouseArea {
         id: mousePolyLine
         anchors.fill: parent
         preventStealing: false

@@ -31,8 +31,6 @@ MapCircle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onClicked: {
-
-
             if (mouse.button == Qt.RightButton)
             {
                 console.log("remove");
