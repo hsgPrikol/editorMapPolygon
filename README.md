@@ -7,4 +7,5 @@
 
 В редакторе можно удалять, передвигать, добавлять и изменять существующие полигоны. 
 
-![2022-06-22 15-09-07](https://user-images.githubusercontent.com/90676887/175026025-5eeed5a9-09cd-4cf6-b1cb-ef9ee9bb9a04.gif)
+![2022-06-23 14-13-04 (1)](https://user-images.githubusercontent.com/90676887/175296724-baa11009-6bcc-4440-9cbd-efe9f37d381d.gif)
+
