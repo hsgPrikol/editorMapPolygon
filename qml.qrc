@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>CircleMap.qml</file>
         <file>PolyLine.qml</file>
+        <file>PointMap.qml</file>
     </qresource>
 </RCC>

@@ -7,8 +7,8 @@ import QtQuick.Controls 2.12
 
 Window {
     id: window
-    width: 640
-    height: 480
+    width: 1280
+    height: 720
     visible: true
     title: qsTr("Hello World")
 
@@ -29,6 +29,7 @@ Window {
     property bool flagEditPolyLine: false
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     //createClassCircle
     function createClassCircle(/*index*/)
     {
@@ -47,9 +48,15 @@ Window {
                                                 coor: map.toCoordinate(Qt.point(x_coor, y_coor)),
                                                 index: window.polygons[window.currentPolygon].line.path.length,
                                                 isMoveFirstElement: window.tmpFlag,
-                                                parentIndex: currentPolygon
+                                                parentIndex: currentPolygon,
+                                                customWidth: (100 / 14) * map.zoomLevel
                                             });
         window.tmpFlag = false;
+
+        information.coordinateChangeButton.connect(tmpCircle.onChangeCoorinateButton);
+        map.zoomLevelChangedForChild.connect(tmpCircle.onParentZoomLevelChanged);
+        tmpCircle.printCoordinate.connect(onPrintCoordinate);
+
         map.addMapItem(tmpCircle);
         return tmpCircle;
     }
@@ -90,7 +97,6 @@ Window {
         }
     }
 
-
     //createPath
     function createPath(x_coor, y_coor)
     {
@@ -129,20 +135,29 @@ Window {
                     flagEditPolyLine = !flagEditPolyLine;
 
                     window.polygons[window.currentPolygon].circkles.splice(i+1, 0, tmpCircle);
-                    //                    circles.splice(i+1, 0, tmpCircle);
 
                     window.sortIndex();
-
 
                     break;
                 }
             }
             return;
         }
+
         var tmpCircle = window.createPointCircle(x_coor, y_coor);
 
         window.polygons[window.currentPolygon].circkles.push(tmpCircle);
         window.polygons[window.currentPolygon].line.addCoordinate(map.toCoordinate(Qt.point(x_coor, y_coor)));
+
+        if (window.polygons[window.currentPolygon].circkles.length == 3 )
+        {
+            currentPolygon = window.polygons.length - 1
+            window.polygons[window.currentPolygon].isClose = true;
+            window.polygons[window.currentPolygon].line.addCoordinate(window.polygons[window.currentPolygon].line.path[0]);
+            window.tmpObject = createClassCircle();
+
+            polygons.push(window.tmpObject);
+        }
     }
 
     Map {
@@ -150,16 +165,18 @@ Window {
         anchors.fill: parent
         plugin: mapPlugin
         zoomLevel: 14
-        center: QtPositioning.coordinate(59.939099, 30.315877); // Санкт-Петербург
 
+        center: QtPositioning.coordinate(59.939099, 30.315877); // Санкт-Петербург
+        z: 0
+
+        signal zoomLevelChangedForChild(var newZoomLevel);
 
         MouseArea{
             id: mouseMap
+
             anchors.fill: parent
-            //            preventStealing: true
 
             onClicked: {
-
                 currentPolygon = polygons.length - 1
 
                 if(polygons[currentPolygon].isClose)
@@ -174,33 +191,102 @@ Window {
 
             }
         }
+
+        onZoomLevelChanged:
+        {
+            zoomLevelChangedForChild(zoomLevel)
+        }
     }
 
     Column{
         spacing: 10
+    }
 
-        Button{
-            text: "Сомкнуть полигон"
+    function onPrintCoordinate(coordinate, index)
+    {
+        information.infoCoor = coordinate;
+        information.infoIndex = index;
+    }
 
-            onClicked: {
-                currentPolygon = window.polygons.length - 1
+    Rectangle{
+        id: information
 
-                window.polygons[window.currentPolygon].isClose = true;
+        property var infoCoor
+        property var infoIndex: 0
 
-                window.polygons[window.currentPolygon].line.addCoordinate(window.polygons[window.currentPolygon].line.path[0]);
+        signal coordinateChangeButton(var newlatitude, var longitude, var index, var pol);
 
-                console.log(window.polygons[window.currentPolygon].line.path[0])
-                console.log(window.polygons[window.currentPolygon].line.path[window.polygons[window.currentPolygon].line.path.length - 1])
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.rightMargin: 20
+        anchors.topMargin: 20
 
-                window.tmpObject = createClassCircle();
+        width: parent.width / 2.7
+        height: 200
+        color: "#7Fc0c0c0"
+        radius: information.width / 10
+        clip: true
 
-                polygons.push(window.tmpObject);
+        Column{
+            anchors.centerIn: parent
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            spacing: 10
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Номер позиции "+ information.infoIndex
+            }
+
+            Row{
+                anchors.right: information.right
+                anchors.rightMargin: 5
+                spacing: 5
+                Text {
+                    text: "Широта: "
+                }
+
+                TextField{
+                    id: latitudeTextField
+                    width: information.width / 4 * 3 - 5
+                    text: information.infoCoor.latitude
+                    selectByMouse: true
+                }
+            }
+
+            Row{
+                anchors.rightMargin: 5
+                anchors.right: information.right
+                spacing: 5
+
+                Text {
+                    text: "Долгота:"
+                }
+
+                TextField{
+                    id: longitudeTextField
+                    width: information.width / 4 * 3 -5
+                    text: information.infoCoor.longitude
+                    selectByMouse: true
+                }
+            }
+
+            Button{
+                anchors.horizontalCenter: parent.horizontalCenter
+                id: acceptLatitude
+                text: "Применить"
+
+                onClicked: {
+                    console.log("color", information.color)
+                    information.coordinateChangeButton(latitudeTextField.text, longitudeTextField.text, information.infoIndex, currentPolygon);
+                }
             }
         }
     }
 
     Component.onCompleted: {
-        window.circle = Qt.createComponent("CircleMap.qml");
+        //        window.circle = Qt.createComponent("CircleMap.qml");
+        window.circle = Qt.createComponent("PointMap.qml");
         window.line = Qt.createComponent("PolyLine.qml");
 
         window.tmpObject = createClassCircle();
